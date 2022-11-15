@@ -1,4 +1,3 @@
-// const {ValidationError, DocumentNotFoundError} = require ('../error')
 
 const User = require('../models/user.js');
 const DocumentNotFoundError = require("../error");

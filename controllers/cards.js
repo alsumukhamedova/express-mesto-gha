@@ -1,4 +1,3 @@
-// const {ValidationError, DocumentNotFoundError} = require ('../error')
 
 const Card = require('../models/card.js');
 const DocumentNotFoundError = require('../error.js');
@@ -64,7 +63,7 @@ module.exports.likeCard = (req, res) => {
     })
     .then(card => res.send({data: card}))
     .catch((err) => {
-      if (err.name === "NotFound") {
+      if (err.statusCode === 404) {
         res.status(404).send({
           "message": "Передан несуществующий _id карточки"
         })
