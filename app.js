@@ -1,10 +1,12 @@
 const express = require('express');
 const mongoose = require('mongoose');
-// const bodyParser = require('body-parser');
 const users = require('./routes/users');
 const cardRouter = require('./routes/cards');
-const { PORT=3000 } = process.env;
-// const DocumentNotFound = require('./error.js');
+const {PORT = 3000} = process.env;
+
+const {
+  status_not_found,
+} = require('../utils/constants');
 
 const app = express();
 
@@ -23,9 +25,9 @@ app.use((req, res, next) => {
 
 app.use('/users', users);
 app.use('/cards', cardRouter);
-app.use ('*', function (req,res) {
-  res.status(404).send({
-    "message" : "Страница не найдена"
+app.use('*', function (req, res) {
+  res.status(status_not_found).send({
+    "message": "Страница не найдена"
   });
 })
 
