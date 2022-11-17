@@ -1,6 +1,12 @@
 
 const User = require('../models/user.js');
 const DocumentNotFoundError = require("../error");
+const {
+  status_created,
+  status_bad_request,
+  status_not_found,
+  status_internal,
+} = require('../utils/constants');
 
 module.exports.getUser = (req, res) => {
     User.findById(req.params.userId)
@@ -12,15 +18,15 @@ module.exports.getUser = (req, res) => {
         })
         .catch((err) => {
             if (err.name === "DocumentNotFoundError") {
-                res.status(404).send({
+                res.status(status_not_found).send({
                     "message": "Пользователь по указанному _id не найден."
                 })
             } else if (err.name === "CastError") {
-                res.status(400).send({
-                    "message": "Переданы некорректные данные."
+                res.status(status_bad_request).send({
+                    "message": "Передан некорректный _id."
                 })
             } else {
-                res.status(500).send({message: 'Произошла ошибка'})
+                res.status(status_internal).send({message: 'Произошла ошибка'})
             }
         });
 }
@@ -28,14 +34,14 @@ module.exports.getUser = (req, res) => {
 module.exports.createUser = (req, res) => {
     const {name, about, avatar} = req.body;
     User.create({name, about, avatar})
-        .then(user => res.status(201).send({user}))
+        .then(user => res.status(status_created).send({user}))
         .catch((err) => {
             if (err.name === 'ValidationError') {
-                res.status(400).send({
-                    "message": "Переданы некорректные данные."
+                res.status(status_bad_request).send({
+                    "message": "Передан некорректный _id."
                 })
             } else {
-                res.status(500).send({message: 'Произошла ошибка'})
+                res.status(status_internal).send({message: 'Произошла ошибка'})
             }
         });
 }
@@ -52,16 +58,16 @@ module.exports.updateUser = (req, res) => {
         .then(user => res.send({user}))
         .catch((err) => {
             if (err.name === 'ValidationError') {
-                res.status(400).send({
-                    "message": "Переданы некорректные данные."
+                res.status(status_bad_request).send({
+                    "message": "Передан некорректный _id."
                 })
             }
-            if (err.statusCode === 404) {
-                res.status(404).send({
+            if (err.statusCode === status_not_found) {
+                res.status(status_not_found).send({
                     "message": "Пользователь по указанному _id не найден."
                 })
             } else {
-                res.status(500).send({message: 'Произошла ошибка'})
+                res.status(status_internal).send({message: 'Произошла ошибка'})
             }
         })
 }
@@ -78,16 +84,16 @@ module.exports.updateAvatar = (req, res) => {
         .then(user => res.send({user}))
         .catch((err) => {
                 if (err.name === 'ValidationError') {
-                    res.status(400).send({
-                        "message": "Переданы некорректные данные при обновлении аватара. "
+                    res.status(status_bad_request).send({
+                        "message": "Передан некорректный _id."
                     })
                 }
                 if (req.params.userId === req.user._id) {
-                    res.status(404).send({
+                    res.status(status_not_found).send({
                         "message": "Пользователь по указанному _id не найден."
                     })
                 } else {
-                    res.status(500).send({message: 'Произошла ошибка'})
+                    res.status(status_internal).send({message: 'Произошла ошибка'})
                 }
             }
         );
