@@ -1,4 +1,5 @@
 const Card = require('../models/card.js');
+const User = require('../models/user.js');
 const DocumentNotFoundError = require('../error.js');
 const {
   status_created,
@@ -9,7 +10,9 @@ const {
 
 module.exports.getCards = (req, res) => {
   Card.find({})
-    .then(card => res.send({data: card}))
+    .then(card => {
+      res.send({data: card})
+    })
     .catch((err) => res.status(status_internal).send({
       "message": 'Произошла ошибка', err
     }))

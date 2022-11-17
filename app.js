@@ -6,7 +6,7 @@ const {PORT = 3000} = process.env;
 
 const {
   status_not_found,
-} = require('../utils/constants');
+} = require('./utils/constants');
 
 const app = express();
 

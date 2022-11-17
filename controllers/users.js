@@ -7,7 +7,15 @@ const {
   status_not_found,
   status_internal,
 } = require('../utils/constants');
-
+module.exports.getUsers = (req, res) => {
+  User.find()
+    .orFail(() => {
+      throw new DocumentNotFoundError;
+    })
+    .then((users) => {
+      res.send({users})
+    })
+}
 module.exports.getUser = (req, res) => {
     User.findById(req.params.userId)
         .orFail(() => {
