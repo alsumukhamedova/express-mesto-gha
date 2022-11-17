@@ -1,26 +1,31 @@
-
 const Card = require('../models/card.js');
 const DocumentNotFoundError = require('../error.js');
+const {
+  status_created,
+  status_bad_request,
+  status_not_found,
+  status_internal,
+} = require('../utils/constants');
 
 module.exports.getCards = (req, res) => {
   Card.find({})
     .then(card => res.send({data: card}))
-    .catch((err) => res.status(500).send({
-          "message": 'Произошла ошибка', err}))
+    .catch((err) => res.status(status_internal).send({
+      "message": 'Произошла ошибка', err
+    }))
 };
 
 module.exports.createCard = (req, res) => {
-  console.log(req.user._id);
   const {name, link} = req.body;
   Card.create({name, link, owner: req.user._id})
-    .then(card => res.send({data: card}))
+    .then(card => res.status(status_created).send({data: card}))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(400).send({
+        res.status(status_bad_request).send({
           "message": "Переданы некорректные данные при создании карточки. "
         })
       } else {
-        res.status(500).send({message: 'Произошла ошибка'})
+        res.status(status_internal).send({message: 'Произошла ошибка'})
       }
     });
 }
@@ -33,15 +38,15 @@ module.exports.deleteCard = (req, res) => {
     .then(card => res.send({data: card}))
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(400).send({
+        res.status(status_bad_request).send({
           "message": "Переданы некорректные данные удаления."
         })
       } else if (err.name === "DocumentNotFoundError") {
-        res.status(404).send({
+        res.status(status_not_found).send({
           "message": "Карточка с указанным _id не найдена."
         })
       } else {
-        res.status(500).send({message: 'Произошла ошибка'})
+        res.status(status_internal).send({message: 'Произошла ошибка'})
       }
     });
 }
@@ -56,16 +61,16 @@ module.exports.likeCard = (req, res) => {
     .then(card => res.send({data: card}))
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(404).send({
+        res.status(status_not_found).send({
           "message": "Передан несуществующий _id карточки"
         })
       } else if (err.name === 'CastError') {
-        res.status(400).send({
+        res.status(status_bad_request).send({
           "message": "Переданы некорректные данные для постановки лайка."
         })
 
       } else {
-        res.status(500).send({message: 'Произошла ошибка'})
+        res.status(status_internal).send({message: 'Произошла ошибка'})
       }
     });
 }
@@ -80,16 +85,15 @@ module.exports.dislikeCard = (req, res) => {
     .then(card => res.send({data: card}))
     .catch((err) => {
         if (err.name === 'CastError') {
-          res.status(400).send({
+          res.status(status_bad_request).send({
             "message": "Переданы некорректные данные для снятия лайка."
           })
-          return;
         } else if (err.name === "DocumentNotFoundError") {
-          res.status(404).send({
+          res.status(status_not_found).send({
             "message": "Передан несуществующий _id карточки."
           })
         } else {
-          res.status(500).send({message: 'Произошла ошибка'})
+          res.status(status_internal).send({message: 'Произошла ошибка'})
         }
       }
     )
