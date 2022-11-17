@@ -4,16 +4,16 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "dev": "nodemon app.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "lint": "npx eslint .",
-    "start": "node app.js"
+  "start": "react-scripts start",
+  "build": "react-scripts build",
+  "test": "react-scripts test",
+  "eject": "react-scripts eject"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/alsumukhamedova/express-mesto-gha.git"
   },
-  "author": "",
+  "author": "Alsu Mukhamedova",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/alsumukhamedova/express-mesto-gha/issues"

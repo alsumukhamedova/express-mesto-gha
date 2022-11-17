@@ -1,7 +1,7 @@
 class DocumentNotFoundError extends Error {
   constructor() {
     super();
-    this.name = this.constructor.name;
+    this.name = name;
   }
 }
 

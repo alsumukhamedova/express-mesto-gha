@@ -1,14 +1,14 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const bodyParser = require('body-parser');
+// const bodyParser = require('body-parser');
 const users = require('./routes/users');
 const cardRouter = require('./routes/cards');
 const { PORT=3000 } = process.env;
-const DocumentNotFound = require('./error.js');
+// const DocumentNotFound = require('./error.js');
 
 const app = express();
 
-app.use(bodyParser.json());
+app.use(express.json());
 
 mongoose.connect('mongodb://0.0.0.0:27017/mestodb', {
   useNewUrlParser: true
@@ -21,8 +21,8 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use('/', users);
-app.use('/', cardRouter);
+app.use('/users', users);
+app.use('/cards', cardRouter);
 app.use ('*', function (req,res) {
   res.status(404).send({
     "message" : "Страница не найдена"

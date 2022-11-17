@@ -8,9 +8,7 @@ module.exports.getUser = (req, res) => {
             throw new DocumentNotFoundError;
         })
         .then((user) => {
-            {
                 res.send({user})
-            }
         })
         .catch((err) => {
             if (err.name === "DocumentNotFoundError") {
@@ -19,7 +17,7 @@ module.exports.getUser = (req, res) => {
                 })
             } else if (err.name === "CastError") {
                 res.status(400).send({
-                    "message": "Пользователь по указанному _id не найден."
+                    "message": "Переданы некорректные данные."
                 })
             } else {
                 res.status(500).send({message: 'Произошла ошибка'})
@@ -30,11 +28,11 @@ module.exports.getUser = (req, res) => {
 module.exports.createUser = (req, res) => {
     const {name, about, avatar} = req.body;
     User.create({name, about, avatar})
-        .then(user => res.status(200 || 201).send({user}))
+        .then(user => res.status(201).send({user}))
         .catch((err) => {
             if (err.name === 'ValidationError') {
                 res.status(400).send({
-                    "message": "Переданы некорректные данные при создании пользователя. "
+                    "message": "Переданы некорректные данные."
                 })
             } else {
                 res.status(500).send({message: 'Произошла ошибка'})
@@ -45,7 +43,7 @@ module.exports.createUser = (req, res) => {
 module.exports.updateUser = (req, res) => {
     const {name, about} = req.body;
     User.findByIdAndUpdate(req.user._id,
-        {name: name, about: about},
+        {name, about},
         {
             new: true,
             runValidators: true,
@@ -55,10 +53,10 @@ module.exports.updateUser = (req, res) => {
         .catch((err) => {
             if (err.name === 'ValidationError') {
                 res.status(400).send({
-                    "message": "Переданы некорректные данные при обновлении пользователя. "
+                    "message": "Переданы некорректные данные."
                 })
             }
-            if (req.params.userId === req.user._id) {
+            if (err.statusCode === 404) {
                 res.status(404).send({
                     "message": "Пользователь по указанному _id не найден."
                 })
