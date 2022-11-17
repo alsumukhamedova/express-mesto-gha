@@ -25,7 +25,7 @@ module.exports.getUser = (req, res) => {
                 res.send({user})
         })
         .catch((err) => {
-            if (err.name === "DocumentNotFoundError") {
+            if (err.name === "ReferenceError") {
                 res.status(status_not_found).send({
                     "message": "Пользователь по указанному _id не найден."
                 })

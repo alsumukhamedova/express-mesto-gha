@@ -63,11 +63,11 @@ module.exports.likeCard = (req, res) => {
     })
     .then(card => res.send({data: card}))
     .catch((err) => {
-      if (err.name === 'CastError') {
+      if (err.name === 'DocumentNotFoundError') {
         res.status(status_not_found).send({
           "message": "Передан несуществующий _id карточки"
         })
-      } else if (err.name === 'CastError') {
+      } else if (err.name === 'ReferenceError') {
         res.status(status_bad_request).send({
           "message": "Переданы некорректные данные для постановки лайка."
         })
