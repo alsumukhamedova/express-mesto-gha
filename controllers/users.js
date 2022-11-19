@@ -17,18 +17,15 @@ module.exports.getUsers = (req, res) => {
 }
 module.exports.getUser = (req, res) => {
   User.findById(req.params.userId)
-    .orFail(() => {
-      throw new DocumentNotFoundError;
-    })
     .then((user) => {
-      res.send({user})
+      if (user === null) {
+        throw new DocumentNotFoundError(`Пользователь по указанному _id не найден`);
+      } else {
+        res.send(user);
+      }
     })
     .catch((err) => {
-      if (err.name === "ReferenceError") {
-        res.status(status_not_found).send({
-          "message": "Пользователь по указанному _id не найден."
-        })
-      } else if (err.name === "CastError") {
+      if (err.name === "CastError") {
         res.status(status_bad_request).send({
           "message": "Передан некорректный _id."
         })
