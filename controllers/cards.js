@@ -14,7 +14,7 @@ module.exports.getCards = (req, res) => {
       res.send({data: card})
     })
     .catch((err) => res.status(status_internal).send({
-      "message": 'Произошла ошибка', err
+      "message": 'Произошла ошибка'
     }))
 };
 
@@ -58,16 +58,15 @@ module.exports.likeCard = (req, res) => {
   Card.findByIdAndUpdate(req.params.cardId,
     {$addToSet: {likes: req.user._id}},
     {new: true},)
-    .orFail(() => {
-      throw new DocumentNotFoundError;
+    .then((card) => {
+      if (card === null) {
+        throw new DocumentNotFoundError('Передан несуществующий id карточки');
+      } else {
+        res.send(card);
+      }
     })
-    .then(card => res.send({data: card}))
     .catch((err) => {
-      if (err.name === 'DocumentNotFoundError') {
-        res.status(status_not_found).send({
-          "message": "Передан несуществующий _id карточки"
-        })
-      } else if (err.name === 'ReferenceError') {
+      if (err.name === 'ReferenceError') {
         res.status(status_bad_request).send({
           "message": "Переданы некорректные данные для постановки лайка."
         })

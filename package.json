@@ -4,10 +4,10 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-  "start": "node app.js",
-  "build": "node build",
-  "test": "node test",
-  "eject": "node eject"
+  "start": "nodemon app.js",
+  "build": "echo \\\"Error: no test specified\\\" && exit 1",
+  "test": "npx eslint .",
+  "eject": "node app.js"
   },
   "repository": {
     "type": "git",
