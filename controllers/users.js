@@ -30,7 +30,7 @@ module.exports.getUser = (req, res) => {
           "message": "Передан некорректный _id."
         })
       } else {
-        res.status(status_internal).send({message: 'Произошла ошибка'})
+        res.status(status_not_found).send({message: 'Пользователь по указанному _id не найден'})
       }
     });
 }
