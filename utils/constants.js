@@ -1,13 +1,13 @@
-const status_ok = 200;
-const status_created = 201;
-const status_bad_request = 400;
-const status_not_found = 404;
-const status_internal= 500;
+const STATUS_OK = 200;
+const STATUS_CREATED = 201;
+const STATUS_BAD_REQUEST = 400;
+const STATUS_NOT_FOUND = 404;
+const STATUS_INTERNAL = 500;
 
 module.exports = {
-  status_ok,
-  status_created,
-  status_bad_request,
-  status_not_found,
-  status_internal,
+  STATUS_OK,
+  STATUS_CREATED,
+  STATUS_BAD_REQUEST,
+  STATUS_NOT_FOUND,
+  STATUS_INTERNAL,
 };

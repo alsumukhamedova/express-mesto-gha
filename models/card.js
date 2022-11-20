@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const cardSchema = new mongoose.Schema( {
+const cardSchema = new mongoose.Schema({
   name: {
     type: String,
     minlength: 2,
@@ -29,6 +29,6 @@ const cardSchema = new mongoose.Schema( {
     type: Date,
     default: Date.now,
   },
-})
+});
 
 module.exports = mongoose.model('card', cardSchema);
