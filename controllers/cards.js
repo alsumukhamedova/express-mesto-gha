@@ -35,16 +35,13 @@ module.exports.createCard = (req, res) => {
 
 module.exports.deleteCard = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
-    .orFail(() => {
-      throw new DocumentNotFoundError;
-    })
     .then(card => res.send({data: card}))
     .catch((err) => {
       if (err.name === 'CastError') {
         res.status(status_bad_request).send({
           "message": "Переданы некорректные данные удаления."
         })
-      } else if (err.name === "DocumentNotFoundError") {
+      } else if (err.name === "ResourceNotFoundError") {
         res.status(status_not_found).send({
           "message": "Карточка с указанным _id не найдена."
         })
@@ -60,17 +57,20 @@ module.exports.likeCard = (req, res) => {
     {new: true},)
     .then((card) => {
       if (card === null) {
-        throw new DocumentNotFoundError('Передан несуществующий id карточки');
+        throw new DocumentNotFoundError();
       } else {
         res.send(card);
       }
     })
     .catch((err) => {
-      if (err.name === 'ReferenceError') {
+      if (err.name === 'CastError') {
         res.status(status_bad_request).send({
           "message": "Переданы некорректные данные для постановки лайка."
         })
-
+      } else if (err.name === 'ResourceNotFoundError') {
+        res.status(status_not_found).send({
+          "message": "Передан несуществующий id."
+        })
       } else {
         res.status(status_internal).send({message: 'Произошла ошибка'})
       }
@@ -81,16 +81,13 @@ module.exports.dislikeCard = (req, res) => {
   Card.findByIdAndUpdate(req.params.cardId,
     {$pull: {likes: req.user._id}},
     {new: true},)
-    .orFail(() => {
-      throw new DocumentNotFoundError;
-    })
     .then(card => res.send({data: card}))
     .catch((err) => {
         if (err.name === 'CastError') {
           res.status(status_bad_request).send({
             "message": "Переданы некорректные данные для снятия лайка."
           })
-        } else if (err.name === "DocumentNotFoundError") {
+        } else if (err.name === "ResourceNotFoundError") {
           res.status(status_not_found).send({
             "message": "Передан несуществующий _id карточки."
           })

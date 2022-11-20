@@ -8,18 +8,19 @@ const {
 } = require('../utils/constants');
 module.exports.getUsers = (req, res) => {
   User.find()
-    .orFail(() => {
-      throw new DocumentNotFoundError;
-    })
     .then((users) => {
       res.send({users})
     })
+    .catch(() => {
+        res.status(status_internal).send({message: 'Произошла ошибка.'})
+      }
+    );
 }
 module.exports.getUser = (req, res) => {
   User.findById(req.params.userId)
     .then((user) => {
       if (user === null) {
-        throw new DocumentNotFoundError(`Пользователь по указанному _id не найден`);
+        throw new DocumentNotFoundError();
       } else {
         res.send(user);
       }
@@ -29,8 +30,12 @@ module.exports.getUser = (req, res) => {
         res.status(status_bad_request).send({
           "message": "Передан некорректный _id."
         })
+      } else if (err.name === 'ResourceNotFoundError') {
+        res.status(status_not_found).send({
+          "message": "Пользователь по указанному _id не найден."
+        })
       } else {
-        res.status(status_not_found).send({message: 'Пользователь по указанному _id не найден'})
+        res.status(status_internal).send({message: 'Произошла ошибка.'})
       }
     });
 }
@@ -61,7 +66,7 @@ module.exports.updateUser = (req, res) => {
     })
     .then((user) => {
       if (user === null) {
-        throw new DocumentNotFoundError(`Пользователь по указанному _id не найден`);
+        throw new DocumentNotFoundError();
       } else {
         res.send(user);
       }
@@ -71,8 +76,16 @@ module.exports.updateUser = (req, res) => {
         res.status(status_bad_request).send({
           "message": "Переданы некорректные данные для обновления."
         })
+      } else if (err.name === 'ResourceNotFoundError') {
+        res.status(status_not_found).send({
+          "message": "Пользователь по указанному _id не найден."
+        })
+      } else if (err.name === "CastError") {
+        res.status(status_bad_request).send({
+          "message": "Передан некорректный _id."
+        })
       } else {
-        res.status(status_internal).send({message: 'Произошла ошибка'})
+        res.status(status_internal).send({"message": 'Произошла ошибка'})
       }
     })
 }
@@ -93,7 +106,7 @@ module.exports.updateAvatar = (req, res) => {
             "message": "Переданы некорректные данные для обновления."
           })
         }
-        if (err.name === "ReferenceError") {
+        if (err.name === "ResourceNotFoundError") {
           res.status(status_not_found).send({
             "message": "Пользователь по указанному _id не найден."
           })
