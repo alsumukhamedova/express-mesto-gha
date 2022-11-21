@@ -103,16 +103,25 @@ module.exports.updateAvatar = (req, res) => {
       upsert: false,
     },
   )
-    .then((user) => res.send({ user }))
+    .then((user) => {
+      if (user === null) {
+        throw new DocumentNotFoundError();
+      } else {
+        res.send(user);
+      }
+    })
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(STATUS_BAD_REQUEST).send({
           message: 'Переданы некорректные данные для обновления.',
         });
-      }
-      if (err.name === 'ResourceNotFoundError') {
+      } else if (err.name === 'ResourceNotFoundError') {
         res.status(STATUS_NOT_FOUND).send({
           message: 'Пользователь по указанному _id не найден.',
+        });
+      } else if (err.name === 'CastError') {
+        res.status(STATUS_BAD_REQUEST).send({
+          message: 'Передан некорректный _id.',
         });
       } else {
         res.status(STATUS_INTERNAL).send({ message: 'Произошла ошибка' });
