@@ -1,15 +1,14 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const { errors, Joi, celebrate } = require('celebrate');
 const users = require('./routes/users');
 const cardRouter = require('./routes/cards');
-const auth = require('./middlewares/auth');
 const { login, createUser } = require('./controllers/users');
-const { errors, Joi, celebrate  } = require('celebrate');
 
 const { PORT = 3000 } = process.env;
 const { DocumentNotFound } = require('./error');
 const {
-  STATUS_NOT_FOUND, STATUS_INTERNAL
+  STATUS_INTERNAL,
 } = require('./utils/constants');
 
 const app = express();

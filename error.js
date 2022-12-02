@@ -1,9 +1,11 @@
-const { STATUS_NOT_FOUND, STATUS_BAD_REQUEST, CONFLICT_ERROR, FORBIDDEN_ERROR, AUTH_ERROR } = require('./utils/constants');
+const {
+  STATUS_NOT_FOUND, STATUS_BAD_REQUEST, CONFLICT_ERROR, FORBIDDEN_ERROR, AUTH_ERROR,
+} = require('./utils/constants');
 
 class DocumentNotFoundError extends Error {
-    constructor(message) {
-      super(message);
-      this.statusCode = STATUS_NOT_FOUND;
+  constructor(message) {
+    super(message);
+    this.statusCode = STATUS_NOT_FOUND;
   }
 }
 class BadRequest extends Error {
@@ -27,11 +29,13 @@ class Forbidden extends Error {
   }
 }
 
-class authError extends Error {
+class AuthError extends Error {
   constructor(message) {
     super(message);
     this.statusCode = AUTH_ERROR;
   }
 }
 
-module.exports = {DocumentNotFoundError, BadRequest, Conflicted, Forbidden, authError};
+module.exports = {
+  DocumentNotFoundError, BadRequest, Conflicted, Forbidden, AuthError,
+};

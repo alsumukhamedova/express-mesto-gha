@@ -1,9 +1,9 @@
 const Card = require('../models/card');
 require('../models/user');
-const { DocumentNotFoundError, BadRequest, Forbidden} = require('../error');
+const { DocumentNotFoundError, BadRequest, Forbidden } = require('../error');
 
 const {
-  STATUS_CREATED
+  STATUS_CREATED,
 } = require('../utils/constants');
 
 module.exports.getCards = (req, res, next) => {
@@ -28,7 +28,6 @@ module.exports.createCard = (req, res, next) => {
 };
 
 module.exports.deleteCard = (req, res, next) => {
-  console.log(req.user._id);
   Card.findByIdAndRemove(req.params.cardId)
     .then((card) => {
       const owner = card.owner.toString();

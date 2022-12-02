@@ -1,13 +1,15 @@
-const User = require('../models/user');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const {DocumentNotFoundError, BadRequest, Conflicted, authError} = require('error');
-const {AUTH_ERROR, STATUS_CREATED} = require('../utils/constants');
+const {
+  DocumentNotFoundError, BadRequest, Conflicted, AuthError,
+} = require('../error');
+const User = require('../models/user');
+const { STATUS_CREATED } = require('../utils/constants');
 
 module.exports.getUsers = (req, res, next) => {
   User.find()
     .then((users) => {
-      res.send({users});
+      res.send({ users });
     })
     .catch(next);
 };
@@ -32,7 +34,7 @@ module.exports.getThisUserInfo = (req, res, next) => {
       throw new DocumentNotFoundError();
     })
     .then((user) => {
-      res.send({user});
+      res.send({ user });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
@@ -65,10 +67,10 @@ module.exports.createUser = (req, res, next) => {
 };
 
 module.exports.updateUser = (req, res, next) => {
-  const {name, about} = req.body;
+  const { name, about } = req.body;
   User.findByIdAndUpdate(
     req.user._id,
-    {name, about},
+    { name, about },
     {
       new: true,
       runValidators: true,
@@ -83,16 +85,16 @@ module.exports.updateUser = (req, res, next) => {
       }
     })
     .catch((err) => {
-      next(new authError('Необходима авторизация'));
+      next(new AuthError('Необходима авторизация'));
       next(err);
     });
 };
 
 module.exports.updateAvatar = (req, res, next) => {
-  const {avatar} = req.body;
+  const { avatar } = req.body;
   User.findByIdAndUpdate(
     req.user._id,
-    {avatar},
+    { avatar },
     {
       new: true,
       runValidators: true,
@@ -116,13 +118,12 @@ module.exports.updateAvatar = (req, res, next) => {
 };
 
 module.exports.login = (req, res, next) => {
-  const {email, password} = req.body;
+  const { email, password } = req.body;
   return User.findUserByCredentials(email, password)
     .then((user) => {
-        const token = jwt.sign({_id: user._id}, 'some-secret-key', {expiresIn: '7d'});
-        return res.send({token});
-      }
-    )
+      const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
+      return res.send({ token });
+    })
     .catch((err) => {
       if (err.code === 11000) {
         next(new Conflicted('Пользователь уже существует'));
