@@ -1,22 +1,17 @@
 const User = require('../models/user');
-const DocumentNotFoundError = require('../error');
-const {
-  STATUS_CREATED,
-  STATUS_BAD_REQUEST,
-  STATUS_NOT_FOUND,
-  STATUS_INTERNAL,
-} = require('../utils/constants');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const {DocumentNotFoundError, BadRequest, Conflicted, authError} = require('error');
+const {AUTH_ERROR, STATUS_CREATED} = require('../utils/constants');
 
-module.exports.getUsers = (req, res) => {
+module.exports.getUsers = (req, res, next) => {
   User.find()
     .then((users) => {
-      res.send({ users });
+      res.send({users});
     })
-    .catch(() => {
-      res.status(STATUS_INTERNAL).send({ message: 'Произошла ошибка.' });
-    });
+    .catch(next);
 };
-module.exports.getUser = (req, res) => {
+module.exports.getUser = (req, res, next) => {
   User.findById(req.params.userId)
     .then((user) => {
       if (user === null) {
@@ -26,40 +21,78 @@ module.exports.getUser = (req, res) => {
       }
     })
     .catch((err) => {
+      next(err);
+    });
+};
+
+module.exports.getThisUserInfo = (req, res, next) => {
+  const userId = req.user._id;
+  User.findById(userId)
+    .orFail(() => {
+      throw new DocumentNotFoundError();
+    })
+    .then((user) => {
+      res.send({user});
+    })
+    .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(STATUS_BAD_REQUEST).send({
-          message: 'Передан некорректный _id.',
-        });
-      } else if (err.name === 'ResourceNotFoundError') {
-        res.status(STATUS_NOT_FOUND).send({
-          message: 'Пользователь по указанному _id не найден.',
-        });
+        next(new BadRequest('Пользователь по указанному _id не найден.'));
       } else {
-        res.status(STATUS_INTERNAL).send({ message: 'Произошла ошибка.' });
+        next(err);
       }
     });
 };
 
-module.exports.createUser = (req, res) => {
-  const { name, about, avatar } = req.body;
-  User.create({ name, about, avatar })
-    .then((user) => res.status(STATUS_CREATED).send({ user }))
+module.exports.createUser = (req, res, next) => {
+  bcrypt.hash(req.body.password, 10)
+    .then((hash) => User.create({
+      email: req.body.email,
+      password: hash,
+      name: req.body.name,
+      about: req.body.about,
+      avatar: req.body.avatar,
+    }))
+    .then((user) => {
+      res.status(STATUS_CREATED).send({ user });
+    })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(STATUS_BAD_REQUEST).send({
-          message: 'Переданы некорректные данные для обновления.',
-        });
+      if (err.code === 11000) {
+        next(new Conflicted('Пользователь уже существует'));
       } else {
-        res.status(STATUS_INTERNAL).send({ message: 'Произошла ошибка' });
+        next(err);
       }
     });
 };
 
-module.exports.updateUser = (req, res) => {
-  const { name, about } = req.body;
+module.exports.updateUser = (req, res, next) => {
+  const {name, about} = req.body;
   User.findByIdAndUpdate(
     req.user._id,
-    { name, about },
+    {name, about},
+    {
+      new: true,
+      runValidators: true,
+      upsert: false,
+    },
+  )
+    .then((user) => {
+      if (user === null) {
+        throw new DocumentNotFoundError();
+      } else {
+        res.send(user);
+      }
+    })
+    .catch((err) => {
+      next(new authError('Необходима авторизация'));
+      next(err);
+    });
+};
+
+module.exports.updateAvatar = (req, res, next) => {
+  const {avatar} = req.body;
+  User.findByIdAndUpdate(
+    req.user._id,
+    {avatar},
     {
       new: true,
       runValidators: true,
@@ -75,56 +108,26 @@ module.exports.updateUser = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(STATUS_BAD_REQUEST).send({
-          message: 'Переданы некорректные данные для обновления.',
-        });
-      } else if (err.name === 'ResourceNotFoundError') {
-        res.status(STATUS_NOT_FOUND).send({
-          message: 'Пользователь по указанному _id не найден.',
-        });
-      } else if (err.name === 'CastError') {
-        res.status(STATUS_BAD_REQUEST).send({
-          message: 'Передан некорректный _id.',
-        });
+        next(new BadRequest('Переданы некорректные данные при обновлении пользователя'));
       } else {
-        res.status(STATUS_INTERNAL).send({ message: 'Произошла ошибка' });
+        next(err);
       }
     });
 };
 
-module.exports.updateAvatar = (req, res) => {
-  const { avatar } = req.body;
-  User.findByIdAndUpdate(
-    req.user._id,
-    { avatar },
-    {
-      new: true,
-      runValidators: true,
-      upsert: false,
-    },
-  )
+module.exports.login = (req, res, next) => {
+  const {email, password} = req.body;
+  return User.findUserByCredentials(email, password)
     .then((user) => {
-      if (user === null) {
-        throw new DocumentNotFoundError();
-      } else {
-        res.send(user);
+        const token = jwt.sign({_id: user._id}, 'some-secret-key', {expiresIn: '7d'});
+        return res.send({token});
       }
-    })
+    )
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(STATUS_BAD_REQUEST).send({
-          message: 'Переданы некорректные данные для обновления.',
-        });
-      } else if (err.name === 'ResourceNotFoundError') {
-        res.status(STATUS_NOT_FOUND).send({
-          message: 'Пользователь по указанному _id не найден.',
-        });
-      } else if (err.name === 'CastError') {
-        res.status(STATUS_BAD_REQUEST).send({
-          message: 'Передан некорректный _id.',
-        });
+      if (err.code === 11000) {
+        next(new Conflicted('Пользователь уже существует'));
       } else {
-        res.status(STATUS_INTERNAL).send({ message: 'Произошла ошибка' });
+        next(err);
       }
     });
 };
