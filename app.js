@@ -36,13 +36,6 @@ app.post('/signup', celebrate({
   }),
 }), createUser);
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: '6354232509ef3153343b6f84',
-  };
-  next();
-});
-
 app.use('/users', users);
 app.use('/cards', cardRouter);
 app.use('*', (req, res, next) => {
