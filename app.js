@@ -4,7 +4,7 @@ const { errors, Joi, celebrate } = require('celebrate');
 const users = require('./routes/users');
 const cardRouter = require('./routes/cards');
 const { login, createUser } = require('./controllers/users');
-const { auth } = require('./middlewares/auth');
+const { authorization } = require('./middlewares/auth');
 
 const { PORT = 3000 } = process.env;
 const { DocumentNotFoundError } = require('./errors/DocumentNotFoundError');
@@ -44,7 +44,7 @@ app.post('/signup', celebrate({
   }),
 }), createUser);
 
-app.use(auth);
+app.use(authorization);
 app.use('/users', users);
 app.use('/cards', cardRouter);
 app.use('*', (req, res, next) => {
