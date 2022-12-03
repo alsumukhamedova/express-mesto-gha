@@ -7,7 +7,7 @@ const { login, createUser } = require('./controllers/users');
 const { auth } = require('./middlewares/auth');
 
 const { PORT = 3000 } = process.env;
-const { DocumentNotFoundError } = require('../errors/DocumentNotFoundError');
+const { DocumentNotFoundError } = require('./errors/DocumentNotFoundError');
 
 const {
   STATUS_INTERNAL,
