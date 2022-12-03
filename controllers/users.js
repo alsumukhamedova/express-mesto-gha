@@ -1,8 +1,8 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const {
-  DocumentNotFoundError, BadRequest, Conflicted, AuthError,
-} = require('../error');
+const { DocumentNotFoundError } = require('../errors/DocumentNotFoundError');
+const { BadRequest } = require('../errors/BadRequest');
+
 const User = require('../models/user');
 const { STATUS_CREATED } = require('../utils/constants');
 
@@ -54,12 +54,12 @@ module.exports.createUser = (req, res, next) => {
       about: req.body.about,
       avatar: req.body.avatar,
     }))
-    .then((user) => {
-      res.status(STATUS_CREATED).send({ user });
+    .then(() => {
+      res.status(STATUS_CREATED).send({ name, about, avatar, email });
     })
     .catch((err) => {
-      if (err.code === 11000) {
-        next(new Conflicted('Пользователь уже существует'));
+      if (err.name === 'ValidationError') {
+        next(new BadRequest('Некорректные данные при создании карточки'));
       } else {
         next(err);
       }
@@ -85,8 +85,11 @@ module.exports.updateUser = (req, res, next) => {
       }
     })
     .catch((err) => {
-      next(new AuthError('Необходима авторизация'));
-      next(err);
+      if (err.name === 'ValidationError'){
+        next(new BadRequest('Некорректные данные при создании карточки.'))
+      } else {
+        next(err);
+      }
     });
 };
 
@@ -125,10 +128,6 @@ module.exports.login = (req, res, next) => {
       return res.send({ token });
     })
     .catch((err) => {
-      if (err.code === 11000) {
-        next(new Conflicted('Пользователь уже существует'));
-      } else {
         next(err);
-      }
     });
 };

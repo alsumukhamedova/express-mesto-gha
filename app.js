@@ -4,9 +4,10 @@ const { errors, Joi, celebrate } = require('celebrate');
 const users = require('./routes/users');
 const cardRouter = require('./routes/cards');
 const { login, createUser } = require('./controllers/users');
+const { auth } = require('./middlewares/auth');
 
 const { PORT = 3000 } = process.env;
-const { DocumentNotFound } = require('./error');
+const { DocumentNotFoundError } = require('./error');
 const {
   STATUS_INTERNAL,
 } = require('./utils/constants');
@@ -35,10 +36,11 @@ app.post('/signup', celebrate({
   }),
 }), createUser);
 
+app.use(auth);
 app.use('/users', users);
 app.use('/cards', cardRouter);
 app.use('*', (req, res, next) => {
-  next(new DocumentNotFound('Страница не найдена'));
+  next(new DocumentNotFoundError('Страница не найдена'));
 });
 app.use(errors());
 app.use((err, req, res, next) => {
