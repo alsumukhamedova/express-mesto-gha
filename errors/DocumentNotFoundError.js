@@ -1,4 +1,4 @@
-const {STATUS_NOT_FOUND} = require("../utils/constants");
+const { STATUS_NOT_FOUND } = require('../utils/constants');
 
 class DocumentNotFoundError extends Error {
   constructor(message) {
@@ -8,5 +8,5 @@ class DocumentNotFoundError extends Error {
 }
 
 module.exports = {
-  DocumentNotFoundError
+  DocumentNotFoundError,
 };

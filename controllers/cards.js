@@ -34,12 +34,11 @@ module.exports.deleteCard = (req, res, next) => {
   Card.findById(id)
     .orFail(() => new DocumentNotFoundError('Нет карточки по заданному id.'))
     .then((card) => {
-      const owner = card.owner.toString();
       if (!card.owner.equals(req.user._id)) {
         return next(new Forbidden('Нельзя удалить чужую карточку.'));
       }
       return card.remove()
-        .then (() => res.send({ message: 'Карточка удалена.'}))
+        .then(() => res.send({ message: 'Карточка удалена.' }));
     })
     .catch(next);
 };

@@ -55,7 +55,9 @@ module.exports.createUser = (req, res, next) => {
       avatar: req.body.avatar,
     }))
     .then(() => {
-      res.status(STATUS_CREATED).send({ name, about, avatar, email });
+      res.status(STATUS_CREATED).send({
+        name, about, avatar, email
+      });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -85,8 +87,8 @@ module.exports.updateUser = (req, res, next) => {
       }
     })
     .catch((err) => {
-      if (err.name === 'ValidationError'){
-        next(new BadRequest('Некорректные данные при создании карточки.'))
+      if (err.name === 'ValidationError') {
+        next(new BadRequest('Некорректные данные при создании карточки.'));
       } else {
         next(err);
       }
@@ -128,6 +130,6 @@ module.exports.login = (req, res, next) => {
       return res.send({ token });
     })
     .catch((err) => {
-        next(err);
+      next(err);
     });
 };

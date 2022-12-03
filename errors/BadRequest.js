@@ -1,4 +1,4 @@
-const {STATUS_BAD_REQUEST} = require("../utils/constants");
+const { STATUS_BAD_REQUEST } = require('../utils/constants');
 
 class BadRequest extends Error {
   constructor(message) {
@@ -8,5 +8,5 @@ class BadRequest extends Error {
 }
 
 module.exports = {
-  BadRequest
+  BadRequest,
 };

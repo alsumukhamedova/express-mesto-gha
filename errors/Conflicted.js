@@ -1,4 +1,4 @@
-const {CONFLICT_ERROR} = require("../utils/constants");
+const { CONFLICT_ERROR } = require('../utils/constants');
 
 class Conflicted extends Error {
   constructor(message) {
@@ -7,5 +7,5 @@ class Conflicted extends Error {
   }
 }
 module.exports = {
-  Conflicted
+  Conflicted,
 };
