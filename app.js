@@ -21,6 +21,13 @@ mongoose.connect('mongodb://0.0.0.0:27017/mestodb', {
   useNewUrlParser: true,
 });
 
+app.use((req, res, next) => {
+  req.user = {
+    _id: '6354232509ef3153343b6f84',
+  };
+  next();
+});
+
 app.post('/signin', celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email({ tlds: { allow: false } }),
