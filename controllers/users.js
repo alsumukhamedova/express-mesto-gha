@@ -17,7 +17,7 @@ module.exports.getUser = (req, res, next) => {
   User.findById(req.params.userId)
     .then((user) => {
       if (user === null) {
-        throw new DocumentNotFoundError();
+        throw new DocumentNotFoundError('Недостаточно данных');
       } else {
         res.send(user);
       }
@@ -37,9 +37,7 @@ module.exports.getThisUserInfo = (req, res, next) => {
       res.send({ user });
     })
     .catch((err) => {
-      if (err.code === 11000) {
-        next(new Conflicted('Пользователь уже существует'));
-      } else if (err.name === 'CastError') {
+      if (err.name === 'CastError') {
         next(new BadRequest('Пользователь по указанному _id не найден.'));
       } else {
         next(err);
@@ -64,6 +62,8 @@ module.exports.createUser = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new BadRequest('Некорректные данные при создании карточки'));
+      } else if (err.code === 11000) {
+        next(new Conflicted('Пользователь уже существует'));
       } else {
         next(err);
       }
