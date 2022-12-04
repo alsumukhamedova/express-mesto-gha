@@ -1,7 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { DocumentNotFoundError } = require('../errors/DocumentNotFoundError');
-const { BadRequest } = require('../errors/BadRequest');
+const { BadRequest, Conflicted } = require('../errors/BadRequest');
 
 const User = require('../models/user');
 const { STATUS_CREATED } = require('../utils/constants');
@@ -31,13 +31,15 @@ module.exports.getThisUserInfo = (req, res, next) => {
   const userId = req.user._id;
   User.findById(userId)
     .orFail(() => {
-      throw new DocumentNotFoundError();
+      throw new DocumentNotFoundError('Недостаточно данных');
     })
     .then((user) => {
       res.send({ user });
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
+      if (err.code === 11000) {
+        next(new Conflicted('Пользователь уже существует'));
+      } else if (err.name === 'CastError') {
         next(new BadRequest('Пользователь по указанному _id не найден.'));
       } else {
         next(err);
@@ -81,7 +83,7 @@ module.exports.updateUser = (req, res, next) => {
   )
     .then((user) => {
       if (user === null) {
-        throw new DocumentNotFoundError();
+        throw new DocumentNotFoundError('Недостаточно данных');
       } else {
         res.send(user);
       }
@@ -108,7 +110,7 @@ module.exports.updateAvatar = (req, res, next) => {
   )
     .then((user) => {
       if (user === null) {
-        throw new DocumentNotFoundError();
+        throw new DocumentNotFoundError('Недостаточно данных');
       } else {
         res.send(user);
       }

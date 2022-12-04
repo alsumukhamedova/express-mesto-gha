@@ -30,7 +30,7 @@ module.exports.createCard = (req, res, next) => {
 };
 
 module.exports.deleteCard = (req, res, next) => {
-  const { id } = req.params;
+  const { cardId } = req.params;
   Card.findById(id)
     .orFail(() => new DocumentNotFoundError('Нет карточки по заданному id.'))
     .then((card) => {
@@ -51,7 +51,7 @@ module.exports.likeCard = (req, res, next) => {
   )
     .then((card) => {
       if (card === null) {
-        throw new DocumentNotFoundError();
+        throw new DocumentNotFoundError('Недостаточно данных');
       } else {
         res.send(card);
       }
@@ -67,7 +67,7 @@ module.exports.dislikeCard = (req, res, next) => {
   )
     .then((card) => {
       if (card === null) {
-        throw new DocumentNotFoundError();
+        throw new DocumentNotFoundError('Недостаточно данных');
       } else {
         res.send(card);
       }
