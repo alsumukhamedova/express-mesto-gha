@@ -1,7 +1,8 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { DocumentNotFoundError } = require('../errors/DocumentNotFoundError');
-const { BadRequest, Conflicted } = require('../errors/BadRequest');
+const { BadRequest } = require('../errors/BadRequest');
+const { Conflicted } = require('../errors/Conflicted');
 
 const User = require('../models/user');
 const { STATUS_CREATED } = require('../utils/constants');
