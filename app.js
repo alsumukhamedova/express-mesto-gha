@@ -5,6 +5,7 @@ const users = require('./routes/users');
 const cardRouter = require('./routes/cards');
 const { login, createUser } = require('./controllers/users');
 const { authorization } = require('./middlewares/auth');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
 
 const { PORT = 3000 } = process.env;
 const { DocumentNotFoundError } = require('./errors/DocumentNotFoundError');
@@ -27,7 +28,7 @@ app.use((req, res, next) => {
   };
   next();
 });
-
+app.use(requestLogger);
 app.post('/signin', celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email({ tlds: { allow: false } }),
@@ -50,6 +51,7 @@ app.use('/cards', cardRouter);
 app.use('*', (req, res, next) => {
   next(new DocumentNotFoundError('Страница не найдена'));
 });
+app.use(errorLogger);
 app.use(errors());
 app.use((err, req, res, next) => {
   if (err.statusCode) {
